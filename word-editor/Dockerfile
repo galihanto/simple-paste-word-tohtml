@@ -3,25 +3,25 @@ FROM node:18-alpine AS build
 
 WORKDIR /word-editor
 
-# Copy package.json dan package-lock.json / yarn.lock
+# Copy package.json dan package-lock.json
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install  --legacy-peer-deps
+RUN npm install --legacy-peer-deps
 
-# Copy semua source code
+# Copy seluruh source code
 COPY . .
 
-# Build aplikasi React ke folder /app/build (default buat CRA)
+# Build aplikasi React
 RUN npm run build
 
 # Stage 2: Serve hasil build dengan Nginx
 FROM nginx:stable-alpine
 
-# Copy hasil build dari stage build ke folder nginx default
+# Copy hasil build ke folder Nginx default
 COPY --from=build /word-editor/dist /usr/share/nginx/html
 
-# Salin custom nginx config jika perlu (opsional)
+# Optional: custom nginx config
 # COPY nginx.conf /etc/nginx/nginx.conf
 
 EXPOSE 80

@@ -5,27 +5,39 @@ import Underline from '@tiptap/extension-underline';
 import Link from '@tiptap/extension-link';
 import beautify from 'js-beautify';
 
+function removePInLi(html) {
+  // Ganti <li><p>...</p></li> menjadi <li>...</li>
+  return html.replace(/<li>\s*<p>(.*?)<\/p>\s*<\/li>/gis, '<li>$1</li>');
+}
+
 export default function TiptapEditor() {
   const editor = useEditor({
     extensions: [
       StarterKit,
       Underline,
       Link.configure({
-        autolink: false,        // Jangan auto-link saat ngetik
-        linkOnPaste: true,      // Buat link hanya saat paste
+        autolink: false,
+        linkOnPaste: true,
         openOnClick: true,
         protocols: ['http', 'https', 'mailto'],
       }),
     ],
-    content: '<p>Coba paste link di sini...</p>',
+    content: 'ayo coba paste disini',
   });
 
   if (!editor) return null;
 
+  // Ambil HTML, beautify, lalu hapus <p> di dalam <li>
+  const htmlOutput = removePInLi(
+    beautify.html(editor.getHTML(), {
+      indent_size: 2,
+      wrap_line_length: 80,
+    })
+  );
+
   return (
     <div style={{ maxWidth: 700, margin: '20px auto', fontFamily: 'Arial, sans-serif' }}>
       <h2>TipTap React Editor</h2>
-
       <EditorContent
         editor={editor}
         style={{
@@ -38,8 +50,6 @@ export default function TiptapEditor() {
           backgroundColor: 'white',
         }}
       />
-
-      {/* Output HTML */}
       <h3>Output HTML:</h3>
       <pre
         style={{
@@ -54,10 +64,7 @@ export default function TiptapEditor() {
           borderRadius: 4,
         }}
       >
-        {beautify.html(editor.getHTML(), {
-          indent_size: 2,
-          wrap_line_length: 80,
-        })}
+        {htmlOutput}
       </pre>
     </div>
   );
